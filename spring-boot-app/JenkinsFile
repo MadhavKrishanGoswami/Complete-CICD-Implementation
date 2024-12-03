@@ -33,7 +33,7 @@ pipeline {
             }
             steps {
                 sh 'echo "Building Docker Image"'
-                sh 'cd /spring-boot-app && docker build -t $DOCKER_IMAGE .' // change directory to spring-boot-app and build the docker image
+                sh 'cd ${WORKSPACE}/spring-boot-app && docker build -t $DOCKER_IMAGE .' // change directory to spring-boot-app and build the docker image
                 sh 'echo "Pushing Docker Image"'
                 withCredentials([string(credentialsId: 'docker-cred', variable: 'DOCKER_CREDENTIALS')]) {
                     sh 'echo $DOCKER_CREDENTIALS | docker login -u admin --password-stdin' // login to docker hub
