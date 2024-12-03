@@ -23,7 +23,7 @@ pipeline {
             }
             steps {
                 sh 'echo "Static code analysis"'
-                sh 'cd spring-boot-app && mvn sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.login=admin -Dsonar.password=MadhavGoswami@8224' // change directory to spring-boot-app and run maven sonar:sonar
+                sh 'cd ./spring-boot-app && mvn sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.login=admin -Dsonar.password=MadhavGoswami@8224' // change directory to spring-boot-app and run maven sonar:sonar
             }
         }
         stage("Build and Push Docker Image") {
