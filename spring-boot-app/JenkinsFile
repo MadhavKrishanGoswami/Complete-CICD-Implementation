@@ -14,7 +14,7 @@ pipeline {
         stage("Build and test") {
             steps {
                 sh 'ls -ltr' // list all files in the current directory
-                sh 'cd /spring-boot-app && mvn clean package' // change directory to spring-boot-app and run maven clean package which will build the project
+                sh "cd ${WORKSPACE}/spring-boot-app && mvn clean package" // Use absolute workspace path
             }
         }
         stage("Static code analysis") {
@@ -23,7 +23,7 @@ pipeline {
             }
             steps {
                 sh 'echo "Static code analysis"'
-                sh 'cd ./spring-boot-app && mvn sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.login=admin -Dsonar.password=MadhavGoswami@8224' // change directory to spring-boot-app and run maven sonar:sonar
+                sh 'cd /spring-boot-app && mvn sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.login=admin -Dsonar.password=MadhavGoswami@8224' // change directory to spring-boot-app and run maven sonar:sonar
             }
         }
         stage("Build and Push Docker Image") {
