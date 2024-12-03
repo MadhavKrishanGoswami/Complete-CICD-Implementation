@@ -23,7 +23,7 @@ pipeline {
             }
             steps {
                 sh 'echo "Static code analysis"'
-                sh 'cd /spring-boot-app && mvn sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.login=admin -Dsonar.password=MadhavGoswami@8224' // change directory to spring-boot-app and run maven sonar:sonar
+                sh 'cd ${WORKSPACE}/spring-boot-app && mvn sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.login=admin -Dsonar.password=MadhavGoswami@8224' // change directory to spring-boot-app and run maven sonar:sonar
             }
         }
         stage("Build and Push Docker Image") {
@@ -52,7 +52,7 @@ pipeline {
                     sh 'git config --global user.name "madhavkrishangoswami"'
 
                     // Use env.BUILD_NUMBER directly
-                    sh "sed -i 's/{BUILD_NUMBER}/${env.BUILD_NUMBER}/g' /spring-boot-app-menifests/deployment.yaml"
+                    sh "sed -i 's/{BUILD_NUMBER}/${env.BUILD_NUMBER}/g' ${WORKSPACE}/spring-boot-app-menifests/deployment.yaml"
 
                     sh "git commit -m 'Updated deployment.yaml file with build number ${env.BUILD_NUMBER}'"
                     sh "git push https://${GITHUB_TOKEN}@github.com/${GIT_REPO_USERNAME}/${GIT_REPO_NAME} HEAD:main"
