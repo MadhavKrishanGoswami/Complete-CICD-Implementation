@@ -1,0 +1,62 @@
+pipeline {
+    agent {
+        docker {
+            image 'abhishekf5/maven-abhishek-docker-agent:v1'
+            args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
+    stages {
+        stage("Cheackout") {
+            steps {
+                sh 'echo passed'
+            }
+        }
+        stage("Build and test") {
+            steps {
+                sh 'ls -ltr' // list all files in the current directory
+                sh 'cd /spring-boot-app && mvn clean package' // change directory to spring-boot-app and run maven clean package which will build the project
+            }
+        }
+        stage("Static code analysis") {
+            environment {
+                SONAR_URL = 'http://192.168.0.109:9000/'
+            }
+            steps {
+                sh 'echo "Static code analysis"'
+                sh 'cd /spring-boot-app && mvn sonar:sonar -Dsonar.host.url=$SONAR_URL -Dsonar.login=admin -Dsonar.password=MadhavGoswami@8224' // change directory to spring-boot-app and run maven sonar:sonar
+            }
+        }
+        stage("Build and Push Docker Image") {
+            environment {
+                DOCKER_IMAGE = 'madhavkrishangoswami/complete-cicd-project:${BUILD_NUMBER}'
+                REGISTRY_CREDENTIALS = credentials('docker-cred')
+            }
+            steps {
+                sh 'echo "Building Docker Image"'
+                sh 'cd /spring-boot-app && docker build -t $DOCKER_IMAGE .' // change directory to spring-boot-app and build the docker image
+                sh 'echo "Pushing Docker Image"'
+                withCredentials([string(credentialsId: 'docker-cred', variable: 'DOCKER_CREDENTIALS')]) {
+                    sh 'echo $DOCKER_CREDENTIALS | docker login -u admin --password-stdin' // login to docker hub
+                    sh 'docker push $DOCKER_IMAGE' // push the docker image to docker hub
+                }
+            }
+        }
+        stage("Update Deployment File") {
+            environment {
+                GIT_REPO_NAME = 'Complete-CICD-Implementation'
+                GIT_REPO_USERNAME = 'madhavkrishangoswami'
+            }
+            steps {
+                withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
+                    
+                    sh 'git config --global user.email "goswamimadhavkrishan@gmail.com"'
+                    sh 'git config --global user.name "madhavkrishangoswami"'
+                    BUILD_NUMBER = ${BUILD_NUMBER}
+                    sh 'sed -i "s/{BUILD_NUMBER}/$BUILD_NUMBER/g" /spring-boot-app-menifests/deployment.yaml'
+                    sh 'git commit -m "Updated deployment.yaml file with build number $BUILD_NUMBER"'
+                    sh 'git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main'
+                }
+            }
+        }
+    }
+}
