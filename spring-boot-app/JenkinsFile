@@ -51,7 +51,7 @@ pipeline {
                     
                     sh 'git config --global user.email "goswamimadhavkrishan@gmail.com"'
                     sh 'git config --global user.name "madhavkrishangoswami"'
-                    def BUILD_NUMBER = sh(script: 'echo $BUILD_NUMBER', returnStdout: true).trim()
+                    def buildNumber = env.BUILD_NUMBER 
                     sh 'sed -i "s/{BUILD_NUMBER}/$BUILD_NUMBER/g" /spring-boot-app-menifests/deployment.yaml'
                     sh 'git commit -m "Updated deployment.yaml file with build number $BUILD_NUMBER"'
                     sh 'git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main'
