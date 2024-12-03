@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'bitnami/maven:latest'
+            image 'maven:3.6.3-openjdk-17'
             args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
@@ -33,6 +33,8 @@ pipeline {
             }
             steps {
                 sh 'echo "Building Docker Image"'
+                sh 'apt-get update'
+                sh 'apt-get install -y docker.io'
                 sh 'cd ${WORKSPACE}/spring-boot-app && docker build -t $DOCKER_IMAGE .' // change directory to spring-boot-app and build the docker image
                 sh 'echo "Pushing Docker Image"'
                 withCredentials([string(credentialsId: 'docker-cred', variable: 'DOCKER_CREDENTIALS')]) {
